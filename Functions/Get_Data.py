@@ -30,10 +30,6 @@ if device.type == "cuda":
     print("gpu:", torch.cuda.get_device_name(0))
     torch.cuda.synchronize()
 
-path="/mnt/c/Users/jrech/OneDrive - Modehaus und Trachtenhaus Rechenauer GmbH/Desktop/Privat/MBA Workflow/Masterarbeit/CODE_BASE/DATEN/DB.db"
-engine = sa.create_engine("sqlite:///" + path)
-engine.connect()
-
 
 def clean_feature_names(names):
     cleaned = []

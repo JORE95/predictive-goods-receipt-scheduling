@@ -6,7 +6,6 @@ BASE_PATH = Path.cwd().absolute()
 
 sys.path.append(str(BASE_PATH))
 sys.path.append(str(BASE_PATH / "Costum_Models"))
-
 import Gandalf as Gan_model
 import MLP as MLP_model
 import Confinv
@@ -15,12 +14,11 @@ from lightgbm import LGBMClassifier
 from sklearn.linear_model import LogisticRegression
 from pytorch_tabnet.tab_model import TabNetClassifier
 import xgboost as xgb
-
 import pytorch_tabnet
 import pandas as pd
 import numpy as np
 import torch.nn as nn
-import torch
+
 import sqlalchemy as sa
 import Results as res
 import Get_Data as gd
@@ -142,8 +140,6 @@ def test_models():
         sample_weight=w_test
     )
     res.save_frames(Model, y_pred.flatten(), y_proba ,y_test, w_test, training_time=traing_time)
-
-
 
     # %% Gandalf
 

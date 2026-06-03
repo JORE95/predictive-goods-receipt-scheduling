@@ -1,8 +1,12 @@
-
-
 import sys
 from pathlib import Path
+
+
 BASE_PATH = Path.cwd().absolute()
+sys.path.append(str(BASE_PATH / "Costum_Models"))
+sys.path.append(str(BASE_PATH / "Functions"))
+sys.path.append(str(BASE_PATH / "Studies"))
+
 
 import HypOpt_CatBoost as Cat
 import HypOpt_Gandalf as Gan

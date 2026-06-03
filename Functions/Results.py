@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score,accuracy_score, mean_absolute_error
 
 # %%
-sqlite_path = "/mnt/c/Users/jrech/OneDrive - Modehaus und Trachtenhaus Rechenauer GmbH/Desktop/Privat/MBA Workflow/Masterarbeit/CODE_BASE/DATEN/DB_results_new.db"
+sqlite_path = "Database/DB_results.db"
 engine = sa.create_engine("sqlite:///" + sqlite_path)
 engine.connect()
 
