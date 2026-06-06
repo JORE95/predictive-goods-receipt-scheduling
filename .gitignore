@@ -4,3 +4,4 @@ __pycache__/
 .env
 .DS_Store
 Training_Test_Datensatz/
+Run_Tests.ipynb
