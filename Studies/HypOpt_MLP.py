@@ -26,9 +26,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 cpu=torch.device("cpu")
 
 
-print("device:", device)
 if device.type == "cuda":
-    print("gpu:", torch.cuda.get_device_name(0))
     torch.cuda.synchronize()
 
 path="Database/DB_params.db"

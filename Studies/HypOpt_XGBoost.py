@@ -33,7 +33,6 @@ def Run_Optuna(runs=100, folds=5, Train_data=None):
     y = y.astype(int)
     w = Train_data["w_time"]
     w=w.astype(float)
-    print("y unique:", np.unique(y))
 
     fixed_params = {
         "verbosity": 0,

@@ -3,9 +3,7 @@ import pandas as pd
 import sqlalchemy as sa
 import numpy as np  
 
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-
+import matplotlib.pyplot as plt
 #
 # %%
 sqlite_path = "Database/DB_results.db"
@@ -13,161 +11,113 @@ engine = sa.create_engine("sqlite:///" + sqlite_path)
 engine.connect()
 
 
-def plot_confidence_intervalls():
 
-    df = pd.read_sql("SELECT * FROM ConfidenceIntervals", con=engine)
+def confidence_intervalls():
 
-    num_cols = ["mean_bootstrap", "ci_lower_95", "ci_upper_95"]
-    df[num_cols] = df[num_cols].apply(pd.to_numeric, errors="coerce")
+    df=pd.read_sql("SELECT * FROM ConfidenceIntervals", con=engine)
 
     metrics = {
         "accuracy_weighted": "Accuracy",
         "f1_weighted": "F1-Score",
         "MAE": "MAE"
+        
     }
-
-
-    metrics_to_plot = list(metrics.items())
 
     order_df = df[df["metric"] == "accuracy_weighted"].copy()
     order_df = order_df.sort_values("mean_bootstrap", ascending=True)
     model_order = order_df["Model"].tolist()
 
-    fig = make_subplots(
-        rows=1,
-        cols=len(metrics_to_plot),
-        shared_yaxes=True,
-        horizontal_spacing=0.08,
-        subplot_titles=[label for _, label in metrics_to_plot]
+
+    y_pos = np.arange(len(model_order))
+
+
+
+    fig, axes = plt.subplots(
+        ncols=2,
+        figsize=(12, 4.5),
+        sharey=True
     )
 
-    for col_idx, (metric, xlabel) in enumerate(metrics_to_plot, start=1):
+
+
+    for ax, (metric, xlabel) in zip(axes, metrics.items()):
+        print(f"Plotting metric: {metric}")
+        print(f"Model order: {xlabel}")
 
         plot_df = df[df["metric"] == metric].copy()
-
         plot_df["Model"] = pd.Categorical(
             plot_df["Model"],
             categories=model_order,
             ordered=True
         )
-
         plot_df = plot_df.sort_values("Model").reset_index(drop=True)
 
         xerr_lower = plot_df["mean_bootstrap"] - plot_df["ci_lower_95"]
         xerr_upper = plot_df["ci_upper_95"] - plot_df["mean_bootstrap"]
+        xerr = [xerr_lower, xerr_upper]
+        
 
-        x_min = plot_df["ci_lower_95"].min() - 0.02
-        x_max = plot_df["ci_upper_95"].max() + 0.12
-
-        for _, row in plot_df.iterrows():
-            fig.add_trace(
-                go.Scatter(
-                    x=[x_min, row["mean_bootstrap"]],
-                    y=[row["Model"], row["Model"]],
-                    mode="lines",
-                    line=dict(
-                        color="lightgray",
-                        width=2
-                    ),
-                    hoverinfo="skip",
-                    showlegend=False
-                ),
-                row=1,
-                col=col_idx
-            )
-
-        fig.add_trace(
-            go.Scatter(
-                x=plot_df["mean_bootstrap"],
-                y=plot_df["Model"],
-                mode="markers",
-                marker=dict(size=8),
-                error_x=dict(
-                    type="data",
-                    symmetric=False,
-                    array=xerr_upper,
-                    arrayminus=xerr_lower,
-                    thickness=1.5,
-                    width=4
-                ),
-                customdata=plot_df[["ci_lower_95", "ci_upper_95"]].to_numpy(),
-                hovertemplate=(
-                    "<b>%{y}</b><br>"
-                    f"{xlabel}: %{{x:.3f}}<br>"
-                    "95%-CI: [%{customdata[0]:.3f}; %{customdata[1]:.3f}]"
-                    "<extra></extra>"
-                ),
-                showlegend=False
-            ),
-            row=1,
-            col=col_idx
+        ax.hlines(
+            y=y_pos,
+            xmin=plot_df["ci_lower_95"].min() - 0.02,
+            xmax=plot_df["mean_bootstrap"],
+            color="lightgray",
+            alpha=0.8,
+            linewidth=2
         )
 
-        for _, row in plot_df.iterrows():
+    
+        ax.errorbar(
+            x=plot_df["mean_bootstrap"],
+            y=y_pos,
+            xerr=xerr,
+            fmt="o",
+            capsize=4,
+            linewidth=1.5,
+            markersize=6
+        )
 
-            label = (
+
+        for i, row in plot_df.iterrows():
+            ax.text(
+                row["ci_upper_95"] + 0.004,
+                i,
                 f'{row["mean_bootstrap"]:.3f} '
-                f'[{row["ci_lower_95"]:.3f}; {row["ci_upper_95"]:.3f}]'
+                f'[{row["ci_lower_95"]:.3f}; {row["ci_upper_95"]:.3f}]',
+                va="center",
+                fontsize=12,
+                fontweight="bold" if row["Model"] == "LightGBM" else "normal"
             )
 
-            if row["Model"] == "LightGBM":
-                label = f"<b>{label}</b>"
+        ax.set_xlabel(xlabel, fontsize=12)
+        ax.grid(axis="x", linestyle="--", alpha=0.5)
 
-            fig.add_annotation(
-                x=row["ci_upper_95"] + 0.004,
-                y=row["Model"],
-                text=label,
-                showarrow=False,
-                xanchor="left",
-                yanchor="middle",
-                font=dict(size=12),
-                row=1,
-                col=col_idx
-            )
-
-        fig.update_xaxes(
-            title_text=xlabel,
-            range=[x_min, x_max],
-            showgrid=True,
-            griddash="dash",
-            gridcolor="rgba(0,0,0,0.25)",
-            zeroline=False,
-            row=1,
-            col=col_idx
+        ax.set_xlim(
+            plot_df["ci_lower_95"].min() - 0.02,
+            plot_df["ci_upper_95"].max() + 0.12
         )
 
-        fig.update_yaxes(
-            categoryorder="array",
-            categoryarray=model_order,
-            row=1,
-            col=col_idx
-        )
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
-    fig.update_yaxes(
-        title_text="Modellpipeline",
-        row=1,
-        col=1
-    )
 
-    fig.update_layout(
-        template="plotly_white",
-        width=1200,
-        height=450,
-        margin=dict(l=120, r=40, t=60, b=60),
-        font=dict(size=12)
-    )
+    axes[0].set_yticks(y_pos)
+    axes[0].set_yticklabels(model_order, fontsize=12)
+    axes[0].set_ylabel("Modellpipeline")
 
-    fig.show(renderer="browser")
+
+    plt.tight_layout()
 
 
 
 
 
-# %%
 
-def overview_plotly():
+def overview():
 
-    df = pd.read_sql("SELECT * FROM model_results", con=engine)
+    df=pd.read_sql("SELECT * FROM model_results", con=engine)
+
+
 
     for col in df.columns:
         try:
@@ -175,18 +125,19 @@ def overview_plotly():
         except ValueError:
             pass
 
-    df = df[df["timestamp"].astype(str).str.contains("2026-06-03", na=False)]
 
-    df["rank"] = df.groupby(df.columns[0])["accuracy"].rank(
-        ascending=False,
-        method="first"
-    )
+    df=df[df["timestamp"].str.contains("2026-06-03")]
+    df["rank"] = df.groupby(df.columns[0])["accuracy"].rank(ascending=False, method="first")
+    df=df.sort_values(by=["accuracy"], ascending=False)
+    df=df[df!="None"].fillna(0)
+    df=df[df["rank"]==1.0]
+    df.head()
 
-    df = df.sort_values(by=["accuracy"], ascending=False)
-    df = df.replace("None", np.nan).fillna(0)
-    df = df[df["rank"] == 1.0]
 
-    df = df.drop(columns=["rank", "timestamp", "rank_overall"])
+    df=df.drop(columns=["rank", "timestamp","rank_overall"])
+
+
+    print(df.columns)
 
     df.columns = [
         "Model",
@@ -199,48 +150,60 @@ def overview_plotly():
         "Training Time (s)"
     ]
 
+    df.reset_index(drop=True)
+
     df = df.reset_index(drop=True)
 
-    display_df = df.copy()
+    from great_tables import GT, loc, style
 
-    for col in display_df.columns:
-        if col != "Model":
-            display_df[col] = pd.to_numeric(display_df[col], errors="coerce")
-            display_df[col] = display_df[col].map(
-                lambda x: f"{x:.3f}" if pd.notna(x) else ""
-            )
+    df = df.reset_index(drop=True)
 
-    fig = go.Figure(
-        data=[
-            go.Table(
-                columnwidth=[220, 150, 150, 150, 150, 150, 150, 180],
-                header=dict(
-                    values=[f"<b>{col}</b>" for col in display_df.columns],
-                    font=dict(size=25),
-                    align=["left"] + ["center"] * (len(display_df.columns) - 1),
-                    height=45
-                ),
-                cells=dict(
-                    values=[display_df[col] for col in display_df.columns],
-                    font=dict(size=25),
-                    align=["left"] + ["center"] * (len(display_df.columns) - 1),
-                    height=42
-                )
-            )
-        ]
-    )
+    gt_tbl = (
+        GT(df)
 
-    fig.update_layout(
-        width=1400,
-        height=max(350, 120 + len(display_df) * 45),
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
 
-    fig.show(renderer="browser")
+
+
+        .tab_style(
+            style=[
+                style.text(size="30px", weight="bold")
+            ],
+            locations=loc.title())
+    
+
+        .tab_style(
+            style=[
+                style.text(size="25px"),
+                style.text(weight="bold")
+            ],
+            locations=loc.column_labels()
+        )
+            .tab_style(
+            style=[
+                style.text(size="25px"),
+
+            ],
+            locations=loc.body()
+        )
+
+   
+        .cols_width(
+            **{col: "150px" for col in df.columns if col != "Training Time (s)" and col != "Model"},
+        )
+
   
+        .cols_align(
+            align="center",
+            columns=[col for col in df.columns if col != "Model"]
+        )
+        .cols_align(
+            align="left",
+            columns=["Model"]
+        )
+    )
+
+    return gt_tbl
 
 
-
-
-
+# %%
 

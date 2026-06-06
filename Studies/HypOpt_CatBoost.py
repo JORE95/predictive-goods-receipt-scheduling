@@ -21,7 +21,6 @@ import torch
 Model="CatBoost"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
 model = CatBoostClassifier(task_type="GPU", devices="0")
 
 
@@ -89,7 +88,6 @@ def Run_Optuna(runs=100, folds=5, Train_data=None):
             
             pred_labels = model.predict(X_va)
             acc=accuracy_score(y_va, pred_labels, sample_weight=w_va)
-            print(f"Fold {i+1} Accuracy: {acc}")
             scores.append(acc)
             trial.report(acc, step=i)
 

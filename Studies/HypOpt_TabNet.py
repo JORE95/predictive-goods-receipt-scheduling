@@ -56,7 +56,7 @@ def Run_Optuna(runs=100, epochs=100, folds=5, Train_data=None):
                 "gamma": trial.suggest_categorical("scheduler_gamma", [0.5, 0.8, 0.9])
             }
                 }
-        print(f"Trial {trial.number}: {params}")
+
         batch_size = trial.suggest_categorical("batch_size", [256, 512, 1024, 2028 ])
         skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
         scores = []

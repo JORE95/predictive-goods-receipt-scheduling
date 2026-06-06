@@ -31,9 +31,8 @@ np.random.seed(42)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 cpu=torch.device("cpu")
-print("device:", device)
+
 if device.type == "cuda":
-    print("gpu:", torch.cuda.get_device_name(0))
     torch.cuda.synchronize()
 
 path="Database/DB_params.db"
@@ -109,10 +108,7 @@ def Run_Optuna(runs=20,epochs=100, folds=3, Train_data=None):
     study.optimize(objective, n_trials=runs, show_progress_bar=True)
     trial = study.best_trial
 
-    print("Value:", trial.value)
-    print("Params:")
-    for key, value in trial.params.items():
-        print(f"  {key}: {value}")
+
 
     best_params = dict(trial.params)
 

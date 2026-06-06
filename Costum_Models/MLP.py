@@ -133,7 +133,6 @@ class Model(nn.Module):
                         val_loss, acc =self.validation(val_dataloader)
                         scheduler.step(val_loss)
                         accuracay_plot.append(acc)
-                        print(f"Fold {i+1}, Loss: {loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {acc:.4f}")
                 return np.max(accuracay_plot)
 
 
