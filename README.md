@@ -4,11 +4,10 @@ Machine-Learning- und Deep-Learning-Pipelines zur Prognose von Verzögerungsklas
 
 ## Repository-Struktur
 
-* `Custom_Models`: enthält selbst definierte Modellarchitekturen wie GANDALF und MLP.
+* `Custom_Models`: enthälte die  definierten Modellarchitekturen zu GANDALF und MLP.
 * `Database`: enthält SQLite-Datenbanken für Modellparameter und Ergebnisse.
 * `Functions`: umfasst zentrale Funktionen für Konfiguration, Datenaufbereitung, Visualisierung, Training, Testing und Ergebnisverarbeitung.
 * `Studies`: enthält Skripte zur Hyperparameter-Optimierung der untersuchten Modelle.
 * `Results.ipynb`: dient der Auswertung und Darstellung der Modellergebnisse.
 * `confidence_intervalls.ipynb`: enthält die Berechnung und Analyse von Konfidenzintervallen.
-* `environment.yml`: beschreibt die benötigte Python-Umgebung und Abhängigkeiten.
-* `README.md`: dokumentiert das Repository und dessen Verwendung.
+
