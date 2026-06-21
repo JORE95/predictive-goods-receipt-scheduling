@@ -6,7 +6,7 @@ Machine-Learning- und Deep-Learning-Pipelines zur Prognose von Verzögerungsklas
 
 * `Custom_Models`: enthälte die  definierten Modellarchitekturen zu GANDALF und MLP.
 * `Database`: enthält SQLite-Datenbanken für Modellparameter und Ergebnisse.
-* `Functions`: umfasst zentrale Funktionen für Konfiguration, Datenaufbereitung, Visualisierung, Training, Testing und Ergebnisverarbeitung.
+* `Functions`: umfasst zentrale Funktionen für Konfiguration, Datenaufbereitung, Visualisierung, Training, Testing.
 * `Studies`: enthält Skripte zur Hyperparameter-Optimierung der untersuchten Modelle.
 * `Results.ipynb`: dient der Auswertung und Darstellung der Modellergebnisse.
 
