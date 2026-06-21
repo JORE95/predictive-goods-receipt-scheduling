@@ -9,5 +9,5 @@ Machine-Learning- und Deep-Learning-Pipelines zur Prognose von Verzögerungsklas
 * `Functions`: umfasst zentrale Funktionen für Konfiguration, Datenaufbereitung, Visualisierung, Training, Testing und Ergebnisverarbeitung.
 * `Studies`: enthält Skripte zur Hyperparameter-Optimierung der untersuchten Modelle.
 * `Results.ipynb`: dient der Auswertung und Darstellung der Modellergebnisse.
-* `confidence_intervalls.ipynb`: enthält die Berechnung und Analyse von Konfidenzintervallen.
+
 
